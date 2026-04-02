@@ -20,7 +20,6 @@ import java.util.Set;
  * Abstract base class representing a user-executable command within the game.
  *
  * @author Arseniy Bendyukov
- * @author Programmieren-Team
  * @version 1.0
  */
 public abstract class Command {

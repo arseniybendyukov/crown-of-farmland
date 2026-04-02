@@ -6,7 +6,6 @@ import java.util.Optional;
  * Represents the verbosity level of the game output.
  *
  * @author Arseniy Bendyukov
- * @author Programmieren-Team
  * @version 1.0
  */
 public enum Verbosity {

@@ -13,7 +13,6 @@ import java.util.Scanner;
  * the registration, parsing, and execution of available commands.
  *
  * @author Arseniy Bendyukov
- * @author Programmieren-Team
  * @version 1.0
  */
 public class CommandHandler {

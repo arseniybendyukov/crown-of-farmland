@@ -6,7 +6,6 @@ import java.util.Optional;
  * Represents the rows on the game board.
  *
  * @author Arseniy Bendyukov
- * @author Programmieren-Team
  * @version 1.0
  */
 public enum Row {

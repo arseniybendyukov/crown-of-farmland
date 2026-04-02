@@ -6,7 +6,6 @@ import java.util.Objects;
  * Represents a coordinate position on the game board.
  *
  * @author Arseniy Bendyukov
- * @author Programmieren-Team
  * @version 1.0
  */
 public class Cell {

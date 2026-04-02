@@ -10,7 +10,6 @@ import de.bendyukov.farm.models.Game;
  * This is the main entry class for the program.
  *
  * @author Arseniy Bendyukov
- * @author Programmieren-Team
  * @version 1.0
  */
 public final class Main {

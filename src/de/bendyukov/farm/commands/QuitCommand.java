@@ -6,7 +6,6 @@ import de.bendyukov.farm.models.Game;
  * Implements the quit command.
  *
  * @author Arseniy Bendyukov
- * @author Programmieren-Team
  * @version 1.0
  */
 public class QuitCommand extends Command {

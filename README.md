@@ -10,6 +10,17 @@ Originally developed as a university final assignment in WS 2025/26, then refine
 
 The game is played on a 7x7 board. Columns are labeled `A` to `G`, rows are labeled `1` to `7`, and `A1` is the bottom-left field. At any time, a field can contain at most one unit.
 
+- own team: `x` or `X`
+- opposing team: `y` or `Y`
+- Farmer King: `X` or `Y`
+- other units: `x` or `y`
+- blocking: suffix `b`
+- unit can still move in the current turn: prefix `*`
+
+The game supports two board styles: the standard symbol set and a custom symbol set. If a board symbol file is provided at startup, the custom symbol set is used; otherwise, the standard symbol set is used.
+
+At startup, the output modes `all` and `compact` can be selected. Without an explicit value, `all` is used. In `compact` mode, the lines that contain only connector symbols are omitted.
+
 #### Standard board
 ```text
   +---+---+---+---+---+---+---+
@@ -206,7 +217,15 @@ During its turn, the bot evaluates legal Farmer King moves, possible placement f
 
 This keeps the opponent predictable enough to understand, while still allowing for some variation between games.
 
-For a more detailed description of the bot logic, scoring rules, and random selection mechanisms, see the [detailed enemy README](./src/main/java/de/bendyukov/crownoffarmland/enemy/README.md).
+For a more detailed description of the bot logic, scoring rules, and random selection mechanisms, see the [detailed enemy README](./src/de/bendyukov/farm/models/enemy/README.md).
+
+
+## Winning Conditions
+
+A team loses if its **life points (LP)** drop to `0`.
+
+A team also loses if it must draw a card but its **deck is empty**.
+
 
 ## Program Start
 
@@ -256,7 +275,7 @@ The optional board symbol file defines a custom board rendering.
 - No separators are allowed.
 - UTF-8 encoded files are supported.
 
-If no board symbol file is provided, the default board rendering is used.
+If no board symbol file is provided, the standard board rendering is used.
 
 ### Units File
 
@@ -291,7 +310,102 @@ Rules:
 
 If one shared `deck` file is used, both teams receive the same deck composition. If `deck1` and `deck2` are used, each team gets its own composition.
 
+## Commands Guide
+
+After startup, the game accepts commands through standard input. Command names and arguments are case-insensitive.
+
+### Placeholder Definitions
+
+- `<atk>`: attack value of the affected unit
+- `<bc>`: number of units of the affected team on the board (**board count**), excluding the Farmer King
+- `<board>`: the output of the `board` command
+- `<damage>`: damage to the life points of the attacking or defending team resulting from a duel
+- `<dc>`: size of the affected team's deck (**deck count**)
+- `<def>`: defense value of the affected unit
+- `<field>`: a field identifier from `A1` to `G7`
+- `<idx>`: 1-based index of units in the hand
+- `<lp>`: remaining life points of the affected team
+- `<name>`: name of the affected unit, or `???` if the unit is hidden and belongs to the team that is not currently taking its turn
+- `<padding>`: a sequence of spaces used for alignment
+- `<show>`: the output of the `show` command
+- `<team>`: name of the affected team
+
+### `select <field>`
+
+Selects a field on the board. Afterwards, the board and the current selection are shown.
+
+Selecting a field is a prerequisite for several other commands. The previous selection is removed if necessary. In the following, the phrase ****selected unit**** refers to the unit located on the selected field.
+
+### `board`
+
+Displays the game board on the console.
+
+### `move <field>`
+
+Moves the **selected unit** to the specified field. The target field must be at most one field away horizontally or vertically; staying in place is also allowed. This may trigger a merge or a duel. If the unit is currently blocking, the block may end.
+
+### `flip`
+
+Flips the **selected unit**. Afterwards, the board and the current selection are shown. Flipping does not count as movement.
+
+### `block`
+
+Starts a block for the **selected unit**. Afterwards, the board and the current selection are shown. Starting a block counts as movement.
+
+### `show`
+
+Shows information about the **selected unit**. If the selected field is empty, that is shown as well.
+
+If the unit belongs to the team that is not currently taking its turn and the unit is hidden, its name, `ATK`, and `DEF` are shown as `???`.
+
+### `hand`
+
+Shows a numbered 1-based list of the units currently in the active team's hand.
+
+### `place <idx> [<idx> [<idx> ...]]`
+
+Places one or more units on the selected field. Afterwards, the board and the current selection are shown.
+
+If more than one index is given, each index refers to the state of the hand before placing. The specified units are placed onto the field in the order in which their indices are given. This may trigger merges, including with a unit already on the selected field.
+
+Placing is illegal if:
+
+- the team has already placed units in the current turn
+- the target field is occupied by an opposing unit
+
+### `state`
+
+Shows the current game state, consisting of:
+
+- both team names
+- both teams' life points
+- both deck counts
+- both board counts, excluding the Farmer Kings
+- the board
+- the contents of the selected field, if a field is selected
+
+### `yield [<idx>]`
+
+Ends the current turn and clears the selected field.
+
+If an index `<idx>` is provided, the `<idx>`-th unit in the hand is discarded from the hand and removed from the game.
+
+If the deck of the team whose turn starts next is empty and that team therefore cannot draw, that team loses the game.
+
+The command is illegal if:
+
+- the team whose turn it currently is has five units in hand and no index is given
+- an index is given and the team whose turn it currently is has fewer than five units in hand
+
+If the command is illegal, the same team remains active. Until the end of that turn, only `hand` and `yield` may be used. In particular, no units may be placed or moved anymore.
+
+### `quit`
+
+Terminates the program.
+
+
 ## Example interaction
+
 ```
 >
 ```

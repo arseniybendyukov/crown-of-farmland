@@ -1,1 +1,297 @@
 # Crown of Farmland
+
+A text-based Java strategy game played on a 7x7 board. Two teams place, move, reveal, merge, and sacrifice units in order to defeat the opposing team and take control of Farmland.
+
+Originally developed as a university final assignment in WS 2025/26, then refined for this repository.
+
+## Game Elements
+
+### Board
+
+The game is played on a 7x7 board. Columns are labeled `A` to `G`, rows are labeled `1` to `7`, and `A1` is the bottom-left field. At any time, a field can contain at most one unit.
+
+#### Standard board
+```text
+  +---+---+---+---+---+---+---+
+7 |   |   |   | Y |   |   |   |
+  +---+---+---+---+---+---+---+
+6 |   |   |   |   |   |   |   |
+  +---+---+---+---+---+---+---+
+5 |   |   |   |   |   |   |   |
+  +---+---+---+---+---+---+---+
+4 |   |   |   |   |   |   |   |
+  +---+---+---+---#===#---+---+
+3 |   |   |   |   N   N   |   |
+  +---+---+---+---#===#---+---+
+2 |   |   |   |   |   |   |   |
+  +---+---+---+---+---+---+---+
+1 |   |   |   |*X |   |   |   |
+  +---+---+---+---+---+---+---+
+    A   B   C   D   E   F   G
+```
+
+#### Custom board example
+```text
+  ┌───┬───┬───┬───┬───┬───┬───┐
+7 │   │   │   │ Y │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+6 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+5 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+4 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───╆━━━╅───┼───┤
+3 │   │   │   │   ┃   ┃   │   │
+  ├───┼───┼───┼───╄━━━╃───┼───┤
+2 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+1 │   │   │   │*X │   │   │   │
+  └───┴───┴───┴───┴───┴───┴───┘
+    A   B   C   D   E   F   G
+```
+
+#### Compact board (without rows)
+```text
+7 |   |   |   | Y |   |   |   |
+6 |   |   |   |   |   |   |   |
+5 |   |   |   |   |   |   |   |
+4 |   |   |   |   |   |   |   |
+3 |   |   |   |   N   N   |   |
+2 |   |   |   |   |   |   |   |
+1 |   |   |   |*X |   |   |   |
+    A   B   C   D   E   F   G
+```
+
+### Units
+
+Units are the main actors of the game.
+
+During a turn, each unit may normally move once by at most one field up, right, down, or left. Diagonal movement is not allowed. Moving to the same field is allowed and still counts as movement.
+
+If a unit moves onto:
+- an enemy unit, a duel starts,
+- a friendly unit, a merge starts.
+
+A unit may also start or end a block as long as it has not already moved in the current turn. Blocking lasts until the unit moves again. Starting or ending a block counts as movement.
+
+Each unit has a non-negative attack value and a non-negative defense value (**ATK** and **DEF**, collectively referred to as stats), which determine the outcome of a duel.  In addition, each unit has a two-part name consisting of a **qualifier** and a **role**. In program output, these two parts are always separated by a space.
+
+Newly placed units are hidden at first, meaning the opposing team cannot see their name or stats. A unit may be flipped by its own team if it has not moved in the same turn. Flipping does not count as movement. Once flipped, a unit cannot become hidden again. When a duel starts, both participating units are flipped.
+
+### Farmer King
+
+Each team has a special unit called the **Farmer King**.
+
+- Team 1 starts with its Farmer King on `D1`.
+- Team 2 starts with its Farmer King on `D7`.
+- Farmer Kings are revealed from the start.
+- If a Farmer King moves onto a field occupied by a friendly unit, that unit is removed from the game.
+- A Farmer King cannot move onto a field occupied by an enemy unit (cannot initiate a duel).
+- A Farmer King cannot block.
+- A Farmer King has no `ATK` or `DEF` value.
+- In program output, its name is always `Farmer King`.
+
+### Duels
+
+A duel happens when an attacking unit moves onto a defending unit or a Farmer King.
+
+There are three cases:
+
+#### Defending unit is blocking
+- The attacker wins only if `ATK(attacker) > DEF(defender)`.
+- If the attacker wins, the defending unit is removed.
+- If `ATK(attacker) < DEF(defender)`, the attacking team takes damage equal to `DEF(defender) - ATK(attacker)`.
+- If both values are equal, no one takes damage and no unit is removed.
+- If the attacker does not win, it stays on its original field.
+
+#### Attacking a Farmer King
+- The defending team takes damage equal to the attacker's `ATK`.
+- The attacking unit stays on its original field.
+
+#### Standard duel
+- If the defender is not blocking, the unit with the higher `ATK` wins.
+- The losing team takes damage equal to the absolute difference between both attack values.
+- The losing unit is removed.
+- If both attack values are equal, both units are removed.
+
+### Hand
+
+Each team has a hand of up to 5 units.
+
+- At the start of the game, each team draws 4 units from its own deck.
+- At the start of each of its turns, a team draws one more unit.
+- During a turn, a team may place units from its hand at most once.
+- Placement is only allowed on one of the up to eight fields adjacent to the team's Farmer King, including diagonals.
+- Only units from the hand can be placed on the board.
+- Placed units are removed from the hand.
+
+If a team places a unit while already having five of its own non-king units on the board, the newly placed unit is immediately removed from the game.
+
+It is illegal to place a unit on a field occupied by an enemy unit or the enemy Farmer King.
+
+### Deck
+
+Each team has its own deck of 40 units.
+
+- Units are always drawn from the top of the deck.
+- If a team ends its turn with five cards in hand, it must discard one unit from its hand and remove it from the game.
+- At the start of each turn, the team draws one new unit.
+- If a team cannot draw because its deck is empty, it loses the game.
+
+### Life Points
+
+Both teams start with `8000 LP`.
+
+If a team's life points drop to `0`, that team loses.
+
+### End of the Game
+
+The game ends immediately when one team wins.
+
+### Merging
+
+Units may merge if they are compatible.
+
+A merge is triggered when:
+- a unit moves onto a field occupied by a friendly unit, or
+- a unit from the hand is placed onto a field occupied by a friendly unit.
+
+Merged units:
+- become a new single unit,
+- cannot split again,
+- still count as one unit,
+- may continue moving in the current turn if the merged unit was created by movement.
+
+If an attempted merge is incompatible, the merge fails and the unit that was already on the target field is removed from the game.
+
+The merged name is built from:
+- the qualifier of the unit already on the target field,
+- the qualifier of the moving or placed unit,
+- the role of the unit already on the target field.
+
+Examples:
+- `Harvest Keeper` + `Iron Scout` -> `Iron Harvest Scout`
+- `Amber Warden` + `Thorn Herald` -> `Thorn Amber Herald`
+
+If at least one of the merged units was hidden, the merged unit is hidden as well.
+
+Merged units may merge again later if they remain compatible with other units.
+
+### Compatibility
+
+Units with the **same name** can never merge.
+
+Let `g := max{gcd(ATK(A), ATK(B)), gcd(DEF(A), DEF(B))}`.
+
+
+
+Compatibility is then checked in the following order:
+
+| Type | Condition | Resulting `ATK` | Resulting `DEF` |
+|---|---|---:|---:|
+| **Symbiotic** | `ATK(A) = DEF(B)` and `ATK(B) = DEF(A)` | `ATK(A)` | `DEF(B)` |
+| **Conspirative** | `g > 100` | `ATK(A) + ATK(B) - g` | `DEF(A) + DEF(B) - g` |
+| **Prime** | `g = 100` and either `ATK(A) / 100` and `ATK(B) / 100` are both prime, or `DEF(A) / 100` and `DEF(B) / 100` are both prime | `ATK(A) + ATK(B)` | `DEF(A) + DEF(B)` |
+| **Incompatible** | none of the conditions above apply | – | – |
+
+### Available Units and Deck Composition
+
+The list of available units and the deck composition for both teams are loaded from input files during program startup.
+
+## Opponent Bot
+
+The game includes a simple computer-controlled opponent that plays full turns on its own. Its behavior is based on a rule-driven evaluation of the current game state rather than advanced search or learning.
+
+During its turn, the bot evaluates legal Farmer King moves, possible placement fields, units in hand, and available unit actions such as moving, attacking, merging, blocking, or staying in place. When several options are similarly suitable, it uses **weighted random selection** to avoid fully deterministic behavior. In some cases, such as discarding from a full hand, it uses **reverse-weighted selection** to make stronger units less likely to be removed.
+
+This keeps the opponent predictable enough to understand, while still allowing for some variation between games.
+
+For a more detailed description of the bot logic, scoring rules, and random selection mechanisms, see the [detailed enemy README](./src/main/java/de/bendyukov/crownoffarmland/enemy/README.md).
+
+## Program Start
+
+### Usage
+
+```bash
+java -jar <Main> [<key>=<value>...]
+```
+
+The game is initialized from key-value arguments.
+
+### Supported Arguments
+
+| Key | Type | Meaning |
+| --- | --- | --- |
+| `seed` | integer | Seed for the random generator |
+| `board` | path | Optional board symbol file |
+| `units` | path | Available unit definitions |
+| `deck` | path | Deck composition for both teams |
+| `deck1` | path | Deck composition for team 1 |
+| `deck2` | path | Deck composition for team 2 |
+| `team1` | string | Team 1 name, up to 14 characters |
+| `team2` | string | Team 2 name, up to 14 characters |
+| `verbosity` | string | Output mode: `all` or `compact` |
+
+### Rules for Arguments
+
+- `seed` and `units` are required.
+- You must use either:
+  - `deck`, or
+  - `deck1` and `deck2`.
+- `deck` cannot be combined with `deck1` or `deck2`.
+- `verbosity` is optional.
+- If `team1` is missing, the default name is `Player`.
+- If `team2` is missing, the default name is `Enemy`.
+- No key may appear more than once.
+- Arguments may be passed in any order, but they are processed in the fixed order defined by the specification.
+
+Before validation, the content of the provided files is printed unchanged. If a path is missing, a file contains invalid data, an integer is invalid, or any other argument is malformed, the program terminates with an error before processing any later arguments.
+
+### Board Symbol File
+
+The optional board symbol file defines a custom board rendering.
+
+- It must contain exactly 29 characters.
+- All 29 characters must appear on a single line.
+- No separators are allowed.
+- UTF-8 encoded files are supported.
+
+If no board symbol file is provided, the default board rendering is used.
+
+### Units File
+
+The units file defines up to 80 available units.
+
+Each line contains one unit in this format:
+
+```text
+Qualifier;Role;ATK;DEF
+```
+
+Rules:
+- one unit per line,
+- fields are separated by semicolons,
+- lines must not end with an extra semicolon,
+- no extra whitespace is allowed,
+- unit names do not contain semicolons,
+- program output prints qualifier and role with a space in between.
+
+If a line has invalid data types or the wrong number of fields, startup fails.
+
+### Deck File
+
+A deck file defines how many copies of each unit are used in a deck.
+
+Rules:
+- one non-negative integer per line,
+- line order matches the order of the unit definitions,
+- `0` means the unit is not included,
+- the number of lines must match the number of defined units,
+- the total number of units in each deck must be exactly `40`.
+
+If one shared `deck` file is used, both teams receive the same deck composition. If `deck1` and `deck2` are used, each team gets its own composition.
+
+## Example interaction
+```
+>
+```

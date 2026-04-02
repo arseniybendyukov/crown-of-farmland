@@ -104,26 +104,26 @@ Each team has a special unit called the **Farmer King**.
 
 ### Duels
 
-A duel happens when an attacking unit moves onto a defending unit or a Farmer King.
+A duel happens when an **attacking** unit `A` moves onto a **defending** unit `B` or onto a Farmer King.
 
 There are three cases:
 
-#### Defending unit is blocking
-- The attacker wins only if `ATK(attacker) > DEF(defender)`.
-- If the attacker wins, the defending unit is removed.
-- If `ATK(attacker) < DEF(defender)`, the attacking team takes damage equal to `DEF(defender) - ATK(attacker)`.
-- If both values are equal, no one takes damage and no unit is removed.
-- If the attacker does not win, it stays on its original field.
+#### `B` is blocking
+- `A` wins only if `ATK_A > DEF_B`.
+- If `A` wins, `B` is removed.
+- If `ATK_A < DEF_B`, the attacking team takes damage equal to `DEF_B - ATK_A`.
+- If `ATK_A = DEF_B`, no team takes damage and no unit is removed.
+- If `A` does not win, it stays on its original field.
 
-#### Attacking a Farmer King
-- The defending team takes damage equal to the attacker's `ATK`.
-- The attacking unit stays on its original field.
+#### `A` attacks a Farmer King
+- The defending team takes damage equal to `ATK_A`.
+- `A` stays on its original field.
 
 #### Standard duel
-- If the defender is not blocking, the unit with the higher `ATK` wins.
-- The losing team takes damage equal to the absolute difference between both attack values.
+- If `B` is not blocking, the unit with the higher attack value wins.
+- The losing team takes damage equal to `|ATK_A - ATK_B|`.
 - The losing unit is removed.
-- If both attack values are equal, both units are removed.
+- If `ATK_A = ATK_B`, both units are removed.
 
 ### Hand
 
@@ -192,7 +192,7 @@ Merged units may merge again later if they remain compatible with other units.
 
 Units with the **same name** can never merge.
 
-Let `g := max{gcd(ATK(A), ATK(B)), gcd(DEF(A), DEF(B))}`.
+Let `g := max{gcd(ATK_A, ATK(B)), gcd(DEF_A, DEF(B))}`.
 
 
 
@@ -200,9 +200,9 @@ Compatibility is then checked in the following order:
 
 | Type | Condition | Resulting `ATK` | Resulting `DEF` |
 |---|---|---:|---:|
-| **Symbiotic** | `ATK(A) = DEF(B)` and `ATK(B) = DEF(A)` | `ATK(A)` | `DEF(B)` |
-| **Conspirative** | `g > 100` | `ATK(A) + ATK(B) - g` | `DEF(A) + DEF(B) - g` |
-| **Prime** | `g = 100` and either `ATK(A) / 100` and `ATK(B) / 100` are both prime, or `DEF(A) / 100` and `DEF(B) / 100` are both prime | `ATK(A) + ATK(B)` | `DEF(A) + DEF(B)` |
+| **Symbiotic** | `ATK_A = DEF_B` and `ATK_B = DEF_A` | `ATK_A` | `DEF_B` |
+| **Conspirative** | `g > 100` | `ATK_A + ATK_B - g` | `DEF_A + DEF_B - g` |
+| **Prime** | `g = 100` and either `ATK_A / 100` and `ATK_B / 100` are both prime, or `DEF_A / 100` and `DEF_B / 100` are both prime | `ATK_A + ATK_B` | `DEF_A + DEF_B` |
 | **Incompatible** | none of the conditions above apply | – | – |
 
 ### Available Units and Deck Composition
@@ -407,5 +407,559 @@ Terminates the program.
 ## Example interaction
 
 ```
->
+%> java Main seed=8715026 deck=input/deck_custom.txt units=input/units_custom.txt board=input/board_boxes.txt verbosity=all
+┌┐└┘┬┤┴├─│┼┏┓┗┛┱┲┩┪┹┺┡┢━┃╃╄╅╆
+Harvest;Keeper;200;600
+Ember;Scout;500;300
+Moss;Warden;400;700
+Flint;Sower;700;500
+Willow;Guard;600;800
+Copper;Miller;900;400
+Thorn;Rider;800;900
+Frost;Herald;1000;600
+Cinder;Builder;300;1300
+Oak;Forager;1100;700
+River;Smith;1200;900
+Storm;Brewer;1000;1200
+Iron;Sentinel;1300;1000
+Amber;Weaver;900;1500
+Granite;Driver;1500;1100
+Meadow;Seer;1400;1400
+Ashen;Marshal;1600;1300
+Silver;Planner;1700;1500
+Raven;Captain;1800;1600
+Golden;Engineer;2000;1700
+Wildroot;Architect;2100;1900
+Moonlit;Harvester;2300;2100
+Sunforge;Overseer;2600;2400
+Starfall;Champion;2900;2800
+2
+3
+1
+2
+2
+1
+3
+1
+2
+2
+1
+2
+2
+1
+2
+1
+2
+1
+2
+1
+2
+1
+2
+1
+Use one of the following commands: select, board, move, flip, block, hand, place, show, yield, state, quit.
+>hand
+[1] Granite Driver (1500/1100)
+[2] Meadow Seer (1400/1400)
+[3] Copper Miller (900/400)
+[4] Ember Scout (500/300)
+[5] Ember Scout (500/300)
+>select D1
+  ┌───┬───┬───┬───┬───┬───┬───┐
+7 │   │   │   │ Y │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+6 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+5 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+4 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+3 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+2 │   │   │   │   │   │   │   │
+  ├───┼───┼───╆━━━╅───┼───┼───┤
+1 │   │   │   ┃*X ┃   │   │   │
+  └───┴───┴───┺━━━┹───┴───┴───┘
+    A   B   C   D   E   F   G
+Player's Farmer King
+>move D2
+Farmer King moves to D2.
+  ┌───┬───┬───┬───┬───┬───┬───┐
+7 │   │   │   │ Y │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+6 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+5 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+4 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+3 │   │   │   │   │   │   │   │
+  ├───┼───┼───╆━━━╅───┼───┼───┤
+2 │   │   │   ┃ X ┃   │   │   │
+  ├───┼───┼───╄━━━╃───┼───┼───┤
+1 │   │   │   │   │   │   │   │
+  └───┴───┴───┴───┴───┴───┴───┘
+    A   B   C   D   E   F   G
+Player's Farmer King
+>select D3
+  ┌───┬───┬───┬───┬───┬───┬───┐
+7 │   │   │   │ Y │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+6 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+5 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+4 │   │   │   │   │   │   │   │
+  ├───┼───┼───╆━━━╅───┼───┼───┤
+3 │   │   │   ┃   ┃   │   │   │
+  ├───┼───┼───╄━━━╃───┼───┼───┤
+2 │   │   │   │ X │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+1 │   │   │   │   │   │   │   │
+  └───┴───┴───┴───┴───┴───┴───┘
+    A   B   C   D   E   F   G
+<no unit>
+>place 2
+Player places Meadow Seer on D3.
+  ┌───┬───┬───┬───┬───┬───┬───┐
+7 │   │   │   │ Y │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+6 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+5 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+4 │   │   │   │   │   │   │   │
+  ├───┼───┼───╆━━━╅───┼───┼───┤
+3 │   │   │   ┃*x ┃   │   │   │
+  ├───┼───┼───╄━━━╃───┼───┼───┤
+2 │   │   │   │ X │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+1 │   │   │   │   │   │   │   │
+  └───┴───┴───┴───┴───┴───┴───┘
+    A   B   C   D   E   F   G
+Meadow Seer (Team Player)
+ATK: 1400
+DEF: 1400
+>block
+Meadow Seer (D3) blocks!
+  ┌───┬───┬───┬───┬───┬───┬───┐
+7 │   │   │   │ Y │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+6 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+5 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+4 │   │   │   │   │   │   │   │
+  ├───┼───┼───╆━━━╅───┼───┼───┤
+3 │   │   │   ┃ xb┃   │   │   │
+  ├───┼───┼───╄━━━╃───┼───┼───┤
+2 │   │   │   │ X │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+1 │   │   │   │   │   │   │   │
+  └───┴───┴───┴───┴───┴───┴───┘
+    A   B   C   D   E   F   G
+Meadow Seer (Team Player)
+ATK: 1400
+DEF: 1400
+>yield
+It is Enemy's turn!
+Farmer King moves to D7.
+  ┌───┬───┬───┲━━━┱───┬───┬───┐
+7 │   │   │   ┃ Y ┃   │   │   │
+  ├───┼───┼───╄━━━╃───┼───┼───┤
+6 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+5 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+4 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+3 │   │   │   │ xb│   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+2 │   │   │   │ X │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+1 │   │   │   │   │   │   │   │
+  └───┴───┴───┴───┴───┴───┴───┘
+    A   B   C   D   E   F   G
+Enemy's Farmer King
+Enemy places Storm Brewer on E6.
+  ┌───┬───┬───┬───┬───┬───┬───┐
+7 │   │   │   │ Y │   │   │   │
+  ├───┼───┼───┼───╆━━━╅───┼───┤
+6 │   │   │   │   ┃*y ┃   │   │
+  ├───┼───┼───┼───╄━━━╃───┼───┤
+5 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+4 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+3 │   │   │   │ xb│   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+2 │   │   │   │ X │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+1 │   │   │   │   │   │   │   │
+  └───┴───┴───┴───┴───┴───┴───┘
+    A   B   C   D   E   F   G
+Storm Brewer (Team Enemy)
+ATK: 1000
+DEF: 1200
+Storm Brewer moves to E5.
+  ┌───┬───┬───┬───┬───┬───┬───┐
+7 │   │   │   │ Y │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+6 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───╆━━━╅───┼───┤
+5 │   │   │   │   ┃ y ┃   │   │
+  ├───┼───┼───┼───╄━━━╃───┼───┤
+4 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+3 │   │   │   │ xb│   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+2 │   │   │   │ X │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+1 │   │   │   │   │   │   │   │
+  └───┴───┴───┴───┴───┴───┴───┘
+    A   B   C   D   E   F   G
+Storm Brewer (Team Enemy)
+ATK: 1000
+DEF: 1200
+It is Player's turn!
+>select D3
+  ┌───┬───┬───┬───┬───┬───┬───┐
+7 │   │   │   │ Y │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+6 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+5 │   │   │   │   │ y │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+4 │   │   │   │   │   │   │   │
+  ├───┼───┼───╆━━━╅───┼───┼───┤
+3 │   │   │   ┃*xb┃   │   │   │
+  ├───┼───┼───╄━━━╃───┼───┼───┤
+2 │   │   │   │*X │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+1 │   │   │   │   │   │   │   │
+  └───┴───┴───┴───┴───┴───┴───┘
+    A   B   C   D   E   F   G
+Meadow Seer (Team Player)
+ATK: 1400
+DEF: 1400
+>move D4
+Meadow Seer no longer blocks.
+Meadow Seer moves to D4.
+  ┌───┬───┬───┬───┬───┬───┬───┐
+7 │   │   │   │ Y │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+6 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+5 │   │   │   │   │ y │   │   │
+  ├───┼───┼───╆━━━╅───┼───┼───┤
+4 │   │   │   ┃ x ┃   │   │   │
+  ├───┼───┼───╄━━━╃───┼───┼───┤
+3 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+2 │   │   │   │*X │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+1 │   │   │   │   │   │   │   │
+  └───┴───┴───┴───┴───┴───┴───┘
+    A   B   C   D   E   F   G
+Meadow Seer (Team Player)
+ATK: 1400
+DEF: 1400
+>select E3
+  ┌───┬───┬───┬───┬───┬───┬───┐
+7 │   │   │   │ Y │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+6 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+5 │   │   │   │   │ y │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+4 │   │   │   │ x │   │   │   │
+  ├───┼───┼───┼───╆━━━╅───┼───┤
+3 │   │   │   │   ┃   ┃   │   │
+  ├───┼───┼───┼───╄━━━╃───┼───┤
+2 │   │   │   │*X │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+1 │   │   │   │   │   │   │   │
+  └───┴───┴───┴───┴───┴───┴───┘
+    A   B   C   D   E   F   G
+<no unit>
+>hand
+[1] Granite Driver (1500/1100)
+[2] Copper Miller (900/400)
+[3] Ember Scout (500/300)
+[4] Ember Scout (500/300)
+[5] Ashen Marshal (1600/1300)
+>place 5
+Player places Ashen Marshal on E3.
+  ┌───┬───┬───┬───┬───┬───┬───┐
+7 │   │   │   │ Y │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+6 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+5 │   │   │   │   │ y │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+4 │   │   │   │ x │   │   │   │
+  ├───┼───┼───┼───╆━━━╅───┼───┤
+3 │   │   │   │   ┃*x ┃   │   │
+  ├───┼───┼───┼───╄━━━╃───┼───┤
+2 │   │   │   │*X │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+1 │   │   │   │   │   │   │   │
+  └───┴───┴───┴───┴───┴───┴───┘
+    A   B   C   D   E   F   G
+Ashen Marshal (Team Player)
+ATK: 1600
+DEF: 1300
+>move E4
+Ashen Marshal moves to E4.
+  ┌───┬───┬───┬───┬───┬───┬───┐
+7 │   │   │   │ Y │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+6 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+5 │   │   │   │   │ y │   │   │
+  ├───┼───┼───┼───╆━━━╅───┼───┤
+4 │   │   │   │ x ┃ x ┃   │   │
+  ├───┼───┼───┼───╄━━━╃───┼───┤
+3 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+2 │   │   │   │*X │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+1 │   │   │   │   │   │   │   │
+  └───┴───┴───┴───┴───┴───┴───┘
+    A   B   C   D   E   F   G
+Ashen Marshal (Team Player)
+ATK: 1600
+DEF: 1300
+>yield
+It is Enemy's turn!
+Farmer King moves to D6.
+  ┌───┬───┬───┬───┬───┬───┬───┐
+7 │   │   │   │   │   │   │   │
+  ├───┼───┼───╆━━━╅───┼───┼───┤
+6 │   │   │   ┃ Y ┃   │   │   │
+  ├───┼───┼───╄━━━╃───┼───┼───┤
+5 │   │   │   │   │*y │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+4 │   │   │   │ x │ x │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+3 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+2 │   │   │   │ X │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+1 │   │   │   │   │   │   │   │
+  └───┴───┴───┴───┴───┴───┴───┘
+    A   B   C   D   E   F   G
+Enemy's Farmer King
+Enemy places Oak Forager on E5.
+Oak Forager and Storm Brewer on E5 join forces!
+Union failed. Storm Brewer was eliminated.
+  ┌───┬───┬───┬───┬───┬───┬───┐
+7 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+6 │   │   │   │ Y │   │   │   │
+  ├───┼───┼───┼───╆━━━╅───┼───┤
+5 │   │   │   │   ┃*y ┃   │   │
+  ├───┼───┼───┼───╄━━━╃───┼───┤
+4 │   │   │   │ x │ x │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+3 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+2 │   │   │   │ X │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+1 │   │   │   │   │   │   │   │
+  └───┴───┴───┴───┴───┴───┴───┘
+    A   B   C   D   E   F   G
+Oak Forager (Team Enemy)
+ATK: 1100
+DEF: 700
+Oak Forager moves to E6.
+  ┌───┬───┬───┬───┬───┬───┬───┐
+7 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───╆━━━╅───┼───┤
+6 │   │   │   │ Y ┃ y ┃   │   │
+  ├───┼───┼───┼───╄━━━╃───┼───┤
+5 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+4 │   │   │   │ x │ x │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+3 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+2 │   │   │   │ X │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+1 │   │   │   │   │   │   │   │
+  └───┴───┴───┴───┴───┴───┴───┘
+    A   B   C   D   E   F   G
+Oak Forager (Team Enemy)
+ATK: 1100
+DEF: 700
+It is Player's turn!
+>state
+  Player                  Enemy
+  8000/8000 LP     8000/8000 LP
+  DC: 33/40           DC: 34/40
+  BC: 2/5               BC: 1/5
+  ┌───┬───┬───┬───┬───┬───┬───┐
+7 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+6 │   │   │   │ Y │ y │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+5 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+4 │   │   │   │*x │*x │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+3 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+2 │   │   │   │*X │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+1 │   │   │   │   │   │   │   │
+  └───┴───┴───┴───┴───┴───┴───┘
+    A   B   C   D   E   F   G
+>select D4
+  ┌───┬───┬───┬───┬───┬───┬───┐
+7 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+6 │   │   │   │ Y │ y │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+5 │   │   │   │   │   │   │   │
+  ├───┼───┼───╆━━━╅───┼───┼───┤
+4 │   │   │   ┃*x ┃*x │   │   │
+  ├───┼───┼───╄━━━╃───┼───┼───┤
+3 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+2 │   │   │   │*X │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+1 │   │   │   │   │   │   │   │
+  └───┴───┴───┴───┴───┴───┴───┘
+    A   B   C   D   E   F   G
+Meadow Seer (Team Player)
+ATK: 1400
+DEF: 1400
+>move D5
+Meadow Seer moves to D5.
+  ┌───┬───┬───┬───┬───┬───┬───┐
+7 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+6 │   │   │   │ Y │ y │   │   │
+  ├───┼───┼───╆━━━╅───┼───┼───┤
+5 │   │   │   ┃ x ┃   │   │   │
+  ├───┼───┼───╄━━━╃───┼───┼───┤
+4 │   │   │   │   │*x │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+3 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+2 │   │   │   │*X │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+1 │   │   │   │   │   │   │   │
+  └───┴───┴───┴───┴───┴───┴───┘
+    A   B   C   D   E   F   G
+Meadow Seer (Team Player)
+ATK: 1400
+DEF: 1400
+>select E4
+  ┌───┬───┬───┬───┬───┬───┬───┐
+7 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+6 │   │   │   │ Y │ y │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+5 │   │   │   │ x │   │   │   │
+  ├───┼───┼───┼───╆━━━╅───┼───┤
+4 │   │   │   │   ┃*x ┃   │   │
+  ├───┼───┼───┼───╄━━━╃───┼───┤
+3 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+2 │   │   │   │*X │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+1 │   │   │   │   │   │   │   │
+  └───┴───┴───┴───┴───┴───┴───┘
+    A   B   C   D   E   F   G
+Ashen Marshal (Team Player)
+ATK: 1600
+DEF: 1300
+>move E5
+Ashen Marshal moves to E5.
+  ┌───┬───┬───┬───┬───┬───┬───┐
+7 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+6 │   │   │   │ Y │ y │   │   │
+  ├───┼───┼───┼───╆━━━╅───┼───┤
+5 │   │   │   │ x ┃ x ┃   │   │
+  ├───┼───┼───┼───╄━━━╃───┼───┤
+4 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+3 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+2 │   │   │   │*X │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+1 │   │   │   │   │   │   │   │
+  └───┴───┴───┴───┴───┴───┴───┘
+    A   B   C   D   E   F   G
+Ashen Marshal (Team Player)
+ATK: 1600
+DEF: 1300
+>yield 1
+Player discarded Granite Driver (1500/1100).
+It is Enemy's turn!
+Farmer King moves to D7.
+  ┌───┬───┬───┲━━━┱───┬───┬───┐
+7 │   │   │   ┃ Y ┃   │   │   │
+  ├───┼───┼───╄━━━╃───┼───┼───┤
+6 │   │   │   │   │*y │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+5 │   │   │   │ x │ x │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+4 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+3 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+2 │   │   │   │ X │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+1 │   │   │   │   │   │   │   │
+  └───┴───┴───┴───┴───┴───┴───┘
+    A   B   C   D   E   F   G
+Enemy's Farmer King
+Enemy places Willow Guard on E6.
+Willow Guard and Oak Forager on E6 join forces!
+Union failed. Oak Forager was eliminated.
+  ┌───┬───┬───┬───┬───┬───┬───┐
+7 │   │   │   │ Y │   │   │   │
+  ├───┼───┼───┼───╆━━━╅───┼───┤
+6 │   │   │   │   ┃*y ┃   │   │
+  ├───┼───┼───┼───╄━━━╃───┼───┤
+5 │   │   │   │ x │ x │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+4 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+3 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+2 │   │   │   │ X │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+1 │   │   │   │   │   │   │   │
+  └───┴───┴───┴───┴───┴───┴───┘
+    A   B   C   D   E   F   G
+Willow Guard (Team Enemy)
+ATK: 600
+DEF: 800
+Willow Guard (600/800) attacks ??? on E5!
+Willow Guard (600/800) was flipped on E6!
+Ashen Marshal (1600/1300) was flipped on E5!
+Willow Guard was eliminated!
+Enemy takes 1000 damage!
+  ┌───┬───┬───┬───┬───┬───┬───┐
+7 │   │   │   │ Y │   │   │   │
+  ├───┼───┼───┼───╆━━━╅───┼───┤
+6 │   │   │   │   ┃   ┃   │   │
+  ├───┼───┼───┼───╄━━━╃───┼───┤
+5 │   │   │   │ x │ x │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+4 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+3 │   │   │   │   │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+2 │   │   │   │ X │   │   │   │
+  ├───┼───┼───┼───┼───┼───┼───┤
+1 │   │   │   │   │   │   │   │
+  └───┴───┴───┴───┴───┴───┴───┘
+    A   B   C   D   E   F   G
+<no unit>
+It is Player's turn!
 ```
